@@ -12,7 +12,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,12 +23,14 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {
@@ -78,13 +80,14 @@ public class SpringSecurityTest
     }
 
     @Test
-    @Disabled
+    @Disabled // TODO: See https://github.com/strongbox/strongbox/issues/956
     public void testJWTAuth()
     {
         // TODO: Rewrite this test case.
         String url = getContextBaseUrl() + "/api/users/user/authenticate";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+
         logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
                                   basicAuth));
         String token = given().contentType(ContentType.JSON)
@@ -119,7 +122,7 @@ public class SpringSecurityTest
     }
 
     @Test
-    @Disabled
+    @Disabled // TODO: See https://github.com/strongbox/strongbox/issues/956
     public void testJWTExpire()
             throws InterruptedException
     {
@@ -149,6 +152,7 @@ public class SpringSecurityTest
                .statusCode(HttpStatus.OK.value());
 
         Thread.sleep(3500);
+
         logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
                                   token));
         given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
@@ -175,4 +179,5 @@ public class SpringSecurityTest
                .body("error", CoreMatchers.equalTo("forbidden"))
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
+
 }
