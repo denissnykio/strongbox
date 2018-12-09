@@ -16,7 +16,7 @@ import java.util.HashSet;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Steve Todorov
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @IntegrationTest
 @ActiveProfiles(profiles = "test")
+@Execution(CONCURRENT)
 public class AccountControllerTest
         extends RestAssuredBaseTest
 {
@@ -68,7 +70,6 @@ public class AccountControllerTest
     @Test
     @WithUserDetails("admin")
     public void testGetAccountDetails()
-            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -83,7 +84,6 @@ public class AccountControllerTest
     @WithUserDetails(TEST_DISABLED_USER_ACCOUNT)
     @Transactional
     public void testGetAccountDetailsOnDisabledUserShouldFail()
-            throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -91,14 +91,12 @@ public class AccountControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
-               .body("error", notNullValue())
-        ;
+               .body("error", notNullValue());
     }
 
     @Test
     @WithMockUser(username = "test-account-update", authorities = {"AUTHENTICATED_USER"})
     public void testUpdateAccountDetails()
-            throws Exception
     {
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update");
@@ -164,6 +162,7 @@ public class AccountControllerTest
         testUser.setPassword("password");
         testUser.setRoles(null);
         testUser.setEnabled(true);
+
         userService.save(testUser);
 
         // Tru to change roles
@@ -206,6 +205,7 @@ public class AccountControllerTest
     public void testChangingPasswordToNullShouldNotUpdate()
     {
         final String username = "admin";
+
         UserForm userForm = new UserForm();
         userForm.setPassword(null);
 
@@ -221,6 +221,7 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value());
 
         User updatedUser = userService.findByUserName(username);
+
         assertEquals(username, updatedUser.getUsername());
         assertNotNull(updatedUser.getPassword());
         assertEquals(originalUser.getPassword(), updatedUser.getPassword());
