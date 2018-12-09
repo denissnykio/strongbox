@@ -12,7 +12,7 @@ import io.restassured.http.ContentType;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -22,11 +22,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class CustomAccessDeniedHandlerTest
         extends RestAssuredBaseTest
 {
@@ -49,7 +51,6 @@ public class CustomAccessDeniedHandlerTest
     public void customAccessDeniedHandlerShouldRespondAsExpected()
             throws Exception
     {
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
