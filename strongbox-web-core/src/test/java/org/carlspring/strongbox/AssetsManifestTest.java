@@ -21,10 +21,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Test cases which check if UI assets are accessible.
@@ -32,19 +33,27 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class AssetsManifestTest
 {
 
     private static final String FILE_RESOURCE = "assets-manifest.json";
+
     private static final String ROOT_PATH = "/";
+
     private static final String STYLES_REGEX = "/static/assets/styles.([a-zAZ0-9]+).css";
+
     private static final String RUNTIME_REGEX = "/static/assets/runtime.([a-zAZ0-9]+).js";
+
     private static final String POLYFILLS_REGEX = "/static/assets/polyfills.([a-zAZ0-9]+).js";
+
     private static final String MAIN_REGEX = "/static/assets/main.([a-zAZ0-9]+).js";
+
     private static List<String> indexResources;
 
     @Inject
     private ObjectMapper mapper;
+
 
     @BeforeAll
     static void init()
@@ -138,4 +147,5 @@ public class AssetsManifestTest
             assertTrue(matcher.find());
         }
     }
+
 }
