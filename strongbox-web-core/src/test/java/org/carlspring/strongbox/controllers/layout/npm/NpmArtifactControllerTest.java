@@ -18,18 +18,18 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @IntegrationTest
+@Execution(CONCURRENT)
 public class NpmArtifactControllerTest
         extends NpmRestAssuredBaseTest
 {
-
-    private static final String REPOSITORY_RELEASES = "npm-releases-test";
 
     @Inject
     private NpmRepositoryFactory npmRepositoryFactory;
@@ -38,7 +38,7 @@ public class NpmArtifactControllerTest
     @Qualifier("contextBaseUrl")
     private String contextBaseUrl;
 
-    NpmPackageGenerator packageGenerator;
+    ;
 
 
     @BeforeAll
@@ -51,7 +51,8 @@ public class NpmArtifactControllerTest
     public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, NpmLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "nact-tvp-releases", NpmLayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "nact-tpcf-releases", NpmLayoutProvider.ALIAS));
 
         return repositories;
     }
@@ -62,22 +63,24 @@ public class NpmArtifactControllerTest
         throws Exception
     {
         super.init();
-
-        MutableRepository repository = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
-        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        createRepository(STORAGE0, repository);
-
-        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
-
-        packageGenerator = new NpmPackageGenerator(repositoryBasedir);
     }
 
     @Test
     public void testViewPackage()
         throws Exception
     {
+        String repositoryId = "nact-tvp-releases";
+
+        MutableRepository repository = npmRepositoryFactory.createRepository(repositoryId);
+        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+
+        createRepository(STORAGE0, repository);
+
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-view", "1.0.0");
+
+        String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath();
+        NpmPackageGenerator packageGenerator = new NpmPackageGenerator(repositoryBasedir);
+
         Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
@@ -87,8 +90,7 @@ public class NpmArtifactControllerTest
                .header("Content-Type", "application/json")
                .body(publishJsonContent)
                .when()
-               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                    coordinates.getId())
+               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" + coordinates.getId())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -97,8 +99,8 @@ public class NpmArtifactControllerTest
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                       coordinates.getId() + "/" + coordinates.getVersion())
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" +
+                    coordinates.getId() + "/" + coordinates.getVersion())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -107,8 +109,8 @@ public class NpmArtifactControllerTest
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                       coordinates.getId() + "/1.0.1")
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" +
+                    coordinates.getId() + "/1.0.1")
                .peek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
@@ -118,7 +120,18 @@ public class NpmArtifactControllerTest
     public void testPackageCommonFlow()
         throws Exception
     {
+        String repositoryId = "nact-tpcf-releases";
+
+        MutableRepository repository = npmRepositoryFactory.createRepository(repositoryId);
+        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+
+        createRepository(STORAGE0, repository);
+
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
+
+        String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath();
+        NpmPackageGenerator packageGenerator = new NpmPackageGenerator(repositoryBasedir);
+
         Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
         Path packagePath = packageGenerator.getPackagePath();
 
@@ -129,8 +142,7 @@ public class NpmArtifactControllerTest
                .header("Content-Type", "application/json")
                .body(publishJsonContent)
                .when()
-               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                    coordinates.getId())
+               .put(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" + coordinates.getId())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -139,8 +151,7 @@ public class NpmArtifactControllerTest
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                       coordinates.getId())
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" + coordinates.getId())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -149,8 +160,7 @@ public class NpmArtifactControllerTest
         given().header("User-Agent", "npm/*")
                .header("Content-Type", "application/json")
                .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
-                    coordinates.toResource())
+               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + repositoryId + "/" + coordinates.toResource())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
