@@ -26,14 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.parallel.Execution;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class AuthorizationConfigControllerTestIT
         extends RestAssuredBaseTest
 {

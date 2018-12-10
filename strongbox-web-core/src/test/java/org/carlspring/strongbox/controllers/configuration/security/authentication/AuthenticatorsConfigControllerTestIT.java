@@ -15,11 +15,11 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -30,6 +30,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -38,6 +39,7 @@ import static org.hamcrest.CoreMatchers.is;
  */
 @ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
 @IntegrationTest
+@Execution(CONCURRENT)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -108,7 +110,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .put(getContextBaseUrl()
-                       + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
+                    + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -136,7 +138,7 @@ public class AuthenticatorsConfigControllerTestIT
         assertInitialAuthenticationItems();
 
         AuthenticationItem authenticationItem = new AuthenticationItem("authenticationProviderThird",
-                AuthenticationProvider.class.getSimpleName());
+                                                                       AuthenticationProvider.class.getSimpleName());
         authenticationItem.setEnabled(true);
         authenticationItem.setOrder(2);
 
@@ -172,11 +174,11 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdAcctit() 
+        public HazelcastInstanceId hazelcastInstanceIdAcctit()
         {
             return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }
-        
+
         @Bean
         @Primary
         public AuthenticationResourceManager testAuthenticationResourceManager()
@@ -191,14 +193,12 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Resource getAuthenticationConfigurationResource()
-            throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
         public Resource getAuthenticationPropertiesResource()
-            throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }
