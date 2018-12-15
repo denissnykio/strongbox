@@ -7,7 +7,6 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -16,14 +15,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@ExtendWith(SpringExtension.class)
+@Execution(CONCURRENT)
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -172,7 +177,6 @@ public class RoutingConfigurationControllerTestIT
 
     private void removeAcceptedRuleSet(String acceptHeader)
     {
-
         String url = getContextBaseUrl() + "/rules/set/accepted/group-releases-2";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -240,8 +244,7 @@ public class RoutingConfigurationControllerTestIT
 
     private void overrideAcceptedRepository(String acceptHeader)
     {
-        String url = getContextBaseUrl() + "/rules/accepted" +
-                     "/group-releases-2/override/repositories";
+        String url = getContextBaseUrl() + "/rules/accepted/group-releases-2/override/repositories";
 
         RoutingRuleForm routingRule = new RoutingRuleForm();
         routingRule.setPattern(".*some.test");
@@ -262,8 +265,7 @@ public class RoutingConfigurationControllerTestIT
 
     private void shouldNotOverrideAcceptedRepository(String acceptHeader)
     {
-        String url = getContextBaseUrl() + "/rules/accepted" +
-                     "/group-releases-2/override/repositories";
+        String url = getContextBaseUrl() + "/rules/accepted/group-releases-2/override/repositories";
 
         RoutingRuleForm routingRule = new RoutingRuleForm();
         routingRule.setPattern("");
@@ -279,4 +281,5 @@ public class RoutingConfigurationControllerTestIT
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_OVERRIDE_REPOSITORY_FORM_ERROR));
     }
+
 }
