@@ -8,26 +8,28 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import javax.inject.Inject;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class StrongboxConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
     @Inject
     private ObjectMapper objectMapper;
+
 
     @Override
     @BeforeEach
@@ -38,7 +40,8 @@ public class StrongboxConfigurationControllerTestIT
     }
     
     @Test
-    public void testGetAndSetConfiguration() throws JsonParseException, JsonMappingException, IOException
+    public void testGetAndSetConfiguration()
+            throws IOException
     {
         MutableConfiguration configuration = getConfigurationFromRemote();
 
@@ -61,7 +64,8 @@ public class StrongboxConfigurationControllerTestIT
         assertNotNull(c.getStorage("storage3"), "Failed to create storage3!");
     }
 
-    public MutableConfiguration getConfigurationFromRemote() throws JsonParseException, JsonMappingException, IOException
+    public MutableConfiguration getConfigurationFromRemote()
+            throws IOException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
