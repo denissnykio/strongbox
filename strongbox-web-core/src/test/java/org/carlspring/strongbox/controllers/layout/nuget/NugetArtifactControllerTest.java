@@ -25,18 +25,20 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import ru.aristar.jnuget.rss.PackageFeed;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Sergey Bespalov
  *
  */
 @IntegrationTest
+@Execution(CONCURRENT)
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 
@@ -93,7 +95,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         throws Exception
     {
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete";
-        String packageVersion = "1.0.0";
+        String packageVersion = "1.0.1";
         Path packageFile = generatePackageFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
 
@@ -122,7 +124,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         //Hosted repository
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
-        String packageVersion = "1.0.0";
+        String packageVersion = "1.0.2";
         Path packageFile = generatePackageFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
 
@@ -173,7 +175,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         throws Exception
     {
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
-        String packageVersion = "1.0.0";
+        String packageVersion = "1.0.3";
         Path packageFile = generatePackageFile(packageId, packageVersion);
         long packageSize = Files.size(packageFile);
         byte[] packageContent = readPackageContent(packageFile);
@@ -190,7 +192,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         given().header("User-Agent", "NuGet/*")
                .when()
                .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+                    "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -257,7 +259,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         throws Exception
     {
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
-        String packageVersion = "1.0.0";
+        String packageVersion = "1.0.4";
         byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
 
         // Push
@@ -301,7 +303,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         throws Exception
     {
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
-        String packageVersion = "1.0.0";
+        String packageVersion = "1.0.5";
         byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
 
         // Push
@@ -442,7 +444,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                   .header("User-Agent", "NuGet/*")
                                   .when()
                                   .get(getContextBaseUrl()
-                                          + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                          + "/storages/public/nuget-group/FindPackagesById()?id=log4net&$orderby=Version")
                                   .body()
                                   .as(PackageFeed.class);
 
