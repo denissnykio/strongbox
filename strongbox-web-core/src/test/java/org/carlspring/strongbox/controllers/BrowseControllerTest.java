@@ -11,20 +11,15 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -45,6 +40,7 @@ public class BrowseControllerTest
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
+
     @BeforeAll
     public static void setup()
             throws Exception
@@ -56,7 +52,8 @@ public class BrowseControllerTest
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY, Maven2LayoutProvider.ALIAS));
-        return repositories;        
+
+        return repositories;
     }
     
     @Override
@@ -76,38 +73,8 @@ public class BrowseControllerTest
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(STORAGE0, repository);
-        
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY).getAbsolutePath(),
-                         "org.carlspring.strongbox.browsing:test-browsing",
-                         new String[]{ "1.1",
-                                       "3.2"  
-                         }
-        );      
-    } 
-    
-    @Override
-    @AfterEach
-    public void shutdown()
-    {
-        try
-        {
-            closeIndexersForRepository(STORAGE0, REPOSITORY);
-            removeRepositories();
-            cleanUp(getRepositoriesToClean());
-        }
-        catch (Exception e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
-        super.shutdown();
     }
 
-    private void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-    
     @Test
     public void testGetStorages()
             throws Exception
@@ -170,7 +137,7 @@ public class BrowseControllerTest
                                                        .collect(Collectors.toList());
 
         assertEquals(expectedSortedList, returned.getDirectories(), "Returned repositories are not sorted!");
-        
+
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/")
@@ -182,9 +149,7 @@ public class BrowseControllerTest
                                      .asString();
 
         assertTrue(htmlResponse.contains(REPOSITORY), "Returned HTML is incorrect");
-}
-                                 
-
+    }
 
     @Test
     public void testGetRepositoriesWithStorageNotFound()
@@ -210,6 +175,13 @@ public class BrowseControllerTest
             throws Exception
     {
         String url = getContextBaseUrl() + "/" + STORAGE0 + "/" + REPOSITORY
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY).getAbsolutePath(),
+                         "org.carlspring.strongbox.browsing:test-browsing",
+                         new String[]{ "1.1",
+                                       "3.2"
+                         });
+
+        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/" + STORAGE0 + "/" + REPOSITORY
                      + "/org/carlspring/strongbox/browsing/test-browsing/1.1";
 
         DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -229,6 +201,8 @@ public class BrowseControllerTest
 
         String link = "/storages/" + STORAGE0 + "/" + REPOSITORY +
                       "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
+        String link = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY +
+                      "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
     }
@@ -242,14 +216,14 @@ public class BrowseControllerTest
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());   
+               .statusCode(HttpStatus.NOT_FOUND.value());
                 
         given().accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());   
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
   
     @Test
@@ -268,6 +242,6 @@ public class BrowseControllerTest
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());        
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 }
