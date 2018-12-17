@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,19 +38,22 @@ public class StrongboxConfigurationControllerTestIT
             throws Exception
     {
         super.init();
+        setContextBaseUrl("/api/configuration/strongbox");
     }
-    
+
     @Test
     public void testGetAndSetConfiguration()
             throws IOException
     {
+        final String storageId = "storage3";
+
         MutableConfiguration configuration = getConfigurationFromRemote();
 
-        MutableStorage storage = new MutableStorage("storage3");
+        MutableStorage storage = new MutableStorage(storageId);
 
         configuration.addStorage(storage);
 
-        String url = getContextBaseUrl() + "/api/configuration/strongbox";
+        String url = getContextBaseUrl();
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -57,23 +61,25 @@ public class StrongboxConfigurationControllerTestIT
                .when()
                .put(url)
                .then()
-               .statusCode(200);
+               .statusCode(HttpStatus.OK.value());
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
-        assertNotNull(c.getStorage("storage3"), "Failed to create storage3!");
+        String errorMessage = String.format("Failed to create %s!", storageId);
+        assertNotNull(c.getStorage(storageId), errorMessage);
     }
 
     public MutableConfiguration getConfigurationFromRemote()
             throws IOException
     {
-        String url = getContextBaseUrl() + "/api/configuration/strongbox";
+        String url = getContextBaseUrl();
 
-        return objectMapper.readValue(given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                             .when()
-                                             .get(url)
-                                             .asString(),
-                                      MutableConfiguration.class);
+        String configurationRemote = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                            .when()
+                                            .get(url)
+                                            .asString();
+
+        return objectMapper.readValue(configurationRemote, MutableConfiguration.class);
     }
 
 }
