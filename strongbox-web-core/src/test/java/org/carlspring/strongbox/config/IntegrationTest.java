@@ -20,7 +20,9 @@ import org.springframework.context.event.ContextStoppedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -30,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
  * require web server and remote HTTP protocol.
  *
  * @author Alex Oreshkevich
+ * @author Przemyslaw Fusik
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,6 +43,8 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")
 @ActiveProfiles(profiles = "test")
+@ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml")
+@TestPropertySource(locations = "classpath:/org/carlspring/strongbox/authentication/api/impl/ldap/lapt.properties")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(ExecutionMode.SAME_THREAD)
 public @interface IntegrationTest
@@ -70,5 +75,4 @@ public @interface IntegrationTest
             }
         }
     }
-
 }

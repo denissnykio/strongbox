@@ -3,9 +3,6 @@ package org.carlspring.strongbox.controllers.configuration.security.authenticati
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
-import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
-import org.carlspring.strongbox.config.HazelcastConfiguration;
-import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -25,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.test.context.ActiveProfiles;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -37,7 +33,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author Pablo Tirado
  * @author sbespalov
  */
-@ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
 @IntegrationTest
 @Execution(CONCURRENT)
 public class AuthenticatorsConfigControllerTestIT
@@ -50,7 +45,7 @@ public class AuthenticatorsConfigControllerTestIT
     @Override
     @BeforeEach
     public void init()
-        throws Exception
+            throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
@@ -58,7 +53,7 @@ public class AuthenticatorsConfigControllerTestIT
 
     @AfterEach
     public void afterEveryTest()
-        throws IOException
+            throws IOException
     {
         configurableProviderManager.reload();
 
@@ -174,11 +169,11 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdAcctit()
+        public HazelcastInstanceId hazelcastInstanceId() 
         {
             return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }
-
+        
         @Bean
         @Primary
         public AuthenticationResourceManager testAuthenticationResourceManager()
@@ -193,12 +188,14 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Resource getAuthenticationConfigurationResource()
+            throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
         public Resource getAuthenticationPropertiesResource()
+            throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }
@@ -211,7 +208,7 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException
+                throws AuthenticationException
         {
             return authentication;
         }
