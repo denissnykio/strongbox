@@ -90,10 +90,10 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticationItemList[2].enabled",
                      equalByToString("false"))
                .body("authenticationItemList[3].name",
-                     equalByToString("xmlUserDetailService"))
+                     equalByToString("passwordAuthenticationProvider"))
                .body("authenticationItemList[3].order",
-                     equalByToString("0"))
-               .body("authenticationItemList.size()", is(4))
+                     equalByToString("5"))
+               .body("authenticationItemList.size()", is(8))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -210,7 +210,7 @@ public class AuthenticatorsConfigControllerTestIT
         public Authentication authenticate(Authentication authentication)
                 throws AuthenticationException
         {
-            return authentication;
+            return null;
         }
 
         @Override

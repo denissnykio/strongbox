@@ -20,6 +20,8 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
  * @author Alex Oreshkevich
  */
 @Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RestAssuredArtifactClient
         extends BaseArtifactClient
 {
