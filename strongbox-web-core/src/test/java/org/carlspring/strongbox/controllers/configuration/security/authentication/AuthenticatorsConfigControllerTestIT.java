@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,7 +22,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author sbespalov
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -53,6 +50,13 @@ public class AuthenticatorsConfigControllerTestIT
             throws IOException
     {
         configurableProviderManager.reload();
+
+    }
+
+    @Test
+    public void registryShouldReturnExpectedInitialArray()
+    {
+        assertInitialAuthenticationItems();
     }
 
     private void assertInitialAuthenticationItems()
@@ -77,6 +81,8 @@ public class AuthenticatorsConfigControllerTestIT
                      equalByToString("authenticationProviderThird"))
                .body("authenticationItemList[2].order",
                      equalByToString("2"))
+               .body("authenticationItemList[2].enabled",
+                     equalByToString("false"))
                .body("authenticationItemList[3].name",
                      equalByToString("passwordAuthenticationProvider"))
                .body("authenticationItemList[3].order",
@@ -118,6 +124,8 @@ public class AuthenticatorsConfigControllerTestIT
     @Test
     public void authenticationItemCanBeEnabled()
     {
+        assertInitialAuthenticationItems();
+
         AuthenticationItem authenticationItem = new AuthenticationItem("authenticationProviderThird",
                                                                        AuthenticationProvider.class.getSimpleName());
         authenticationItem.setEnabled(true);
