@@ -18,7 +18,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Martin Todorov
@@ -35,7 +33,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class TrashControllerTest
         extends MavenRestAssuredBaseTest
 {

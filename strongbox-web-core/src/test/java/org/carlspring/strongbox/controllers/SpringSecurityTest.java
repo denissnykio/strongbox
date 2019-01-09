@@ -12,7 +12,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,14 +22,12 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {

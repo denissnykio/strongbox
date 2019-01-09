@@ -64,29 +64,32 @@ public class MavenArtifactDeployer
                    IOException,
                    ArtifactOperationException, ArtifactTransportException
     {
-        generatePom(artifact, packaging);
-        createArchive(artifact);
-
-        deploy(artifact, storageId, repositoryId);
-        deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
-
-        if (classifiers != null)
+        synchronized (ArtifactUtils.convertArtifactToPath(artifact))
         {
-            for (String classifier : classifiers)
+            generatePom(artifact, packaging);
+            createArchive(artifact);
+
+            deploy(artifact, storageId, repositoryId);
+            deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
+
+            if (classifiers != null)
             {
-                // We're assuming the type of the classifier is the same as the one of the main artifact
-                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
-                                                                                     artifact.getArtifactId() + ":" +
-                                                                                     artifact.getVersion() + ":" +
-                                                                                     artifact.getType() + ":" +
-                                                                                     classifier);
-                generate(artifactWithClassifier);
+                for (String classifier : classifiers)
+                {
+                    // We're assuming the type of the classifier is the same as the one of the main artifact
+                    Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
+                                                                                         artifact.getArtifactId() + ":" +
+                                                                                         artifact.getVersion() + ":" +
+                                                                                         artifact.getType() + ":" +
+                                                                                         classifier);
+                    generate(artifactWithClassifier);
 
-                deploy(artifactWithClassifier, storageId, repositoryId);
+                    deploy(artifactWithClassifier, storageId, repositoryId);
+                }
             }
-        }
 
-        mergeMetadata(artifact, storageId, repositoryId);
+            mergeMetadata(artifact, storageId, repositoryId);
+        }
     }
 
     public void mergeMetadata(Artifact artifact,
@@ -217,10 +220,11 @@ public class MavenArtifactDeployer
     {
         File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
         try (InputStream is = new FileInputStream(artifactFile);
-                MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
+             MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
 
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + ArtifactUtils.convertArtifactToPath(artifact);
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
+                         ArtifactUtils.convertArtifactToPath(artifact);
 
             logger.debug("Deploying " + url + "...");
 
@@ -269,7 +273,7 @@ public class MavenArtifactDeployer
         File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
 
         try (InputStream is = new FileInputStream(pomFile);
-                MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
+             MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
                          ArtifactUtils.convertArtifactToPath(artifact);

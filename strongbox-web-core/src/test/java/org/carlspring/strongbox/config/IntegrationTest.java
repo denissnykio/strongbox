@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +24,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 
 /**
@@ -46,7 +46,7 @@ import org.springframework.web.context.WebApplicationContext;
 @ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml")
 @TestPropertySource(locations = "classpath:/org/carlspring/strongbox/authentication/api/impl/ldap/lapt.properties")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Execution(ExecutionMode.SAME_THREAD)
+@Execution(CONCURRENT)
 public @interface IntegrationTest
 {
 

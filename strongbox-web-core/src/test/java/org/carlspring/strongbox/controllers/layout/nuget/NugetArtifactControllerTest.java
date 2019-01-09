@@ -25,20 +25,17 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import ru.aristar.jnuget.rss.PackageFeed;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Sergey Bespalov
  *
  */
 @IntegrationTest
-@Execution(CONCURRENT)
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 

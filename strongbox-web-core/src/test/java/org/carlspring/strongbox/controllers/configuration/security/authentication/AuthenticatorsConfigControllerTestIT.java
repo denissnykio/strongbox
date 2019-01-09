@@ -12,9 +12,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.*;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
@@ -159,47 +156,6 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticationItemList[2].enabled",
                      equalByToString("true"))
                .statusCode(HttpStatus.OK.value());
-    }
-
-    @Profile("AuthenticatorsConfigControllerTestConfig")
-    @Import(HazelcastConfiguration.class)
-    @Configuration
-    public static class AuthenticatorsConfigControllerTestConfig
-    {
-
-        @Primary
-        @Bean
-        public HazelcastInstanceId hazelcastInstanceId() 
-        {
-            return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
-        }
-        
-        @Bean
-        @Primary
-        public AuthenticationResourceManager testAuthenticationResourceManager()
-        {
-            return new TestAuthenticationResourceManager();
-        }
-
-    }
-
-    private static class TestAuthenticationResourceManager extends AuthenticationResourceManager
-    {
-
-        @Override
-        public Resource getAuthenticationConfigurationResource()
-            throws IOException
-        {
-            return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
-        }
-
-        @Override
-        public Resource getAuthenticationPropertiesResource()
-            throws IOException
-        {
-            return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
-        }
-
     }
 
     static class TestAuthenticationProvider
